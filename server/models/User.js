@@ -23,11 +23,9 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Role is required"],
       enum: ["admin", "student", "mentor"],
-      default: "user",
+      default: "student",
     },
-    isActive: { type: Boolean, default: false },
     refreshToken: { type: String, default: "" },
-    avatarUrl: { type: String, default: "" },
   },
   {
     timestamps: true,

@@ -15,6 +15,7 @@ const connectMongoDB = require("./config/db/MongoDB.js");
 const { errorHandler, notFound } = require("./middlewares/errorHandler.js");
 const authRoute = require("./routes/authRoute");
 const usersRoute = require("./routes/usersRoute");
+const assessmentRoute = require("./routes/assessmentRoute");
 const { default: axios } = require("axios");
 dotenv.config();
 
@@ -23,11 +24,13 @@ if (process.env.NODE_ENV !== "production") {
   app.use(morgan("tiny"));
 }
 
+app.enable('trust proxy');
 app.use(cors());
 app.use(compression());
 app.use(helmet());
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(
   express.urlencoded({
     extended: true,
@@ -40,19 +43,23 @@ app.use(express.static(join(__dirname, "build")));
 connectMongoDB();
 
 //while starting the application automatic insert a super admin user
-axios
-  .post(`${process.env.API_URL}/api/v1/auth/registration`, {
-    name: "Admin",
-    email: "admin@mail.com",
-    phoneNumber: "01834123456",
-    password: "admin123456",
-    role: "admin",
-  })
-  .then(({ data }) => console.log(data.message))
-  .catch((err) => console.log(err.message));
+if (process.env.NODE_ENV !== "test") {
+  axios
+    .post(`${process.env.API_URL}/api/v1/auth/registration`, {
+      name: "Admin",
+      email: "admin@mail.com",
+      phoneNumber: "01834123456",
+      password: "admin123456",
+      confirmPassword: "admin123456",
+      role: "admin",
+    })
+    .then(({ data }) => console.log(data.message))
+    .catch((err) => console.log(err.message));
+}
 
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/users", usersRoute);
+app.use("/api/v1/assessments", assessmentRoute);
 app.get("/api/v1/checkStatus", (req, res) =>
   res.json({ status: "Ok", host: req.hostname })
 );

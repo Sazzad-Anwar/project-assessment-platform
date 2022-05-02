@@ -6,9 +6,10 @@
 */
 const expressAsyncHandler = require("express-async-handler");
 const User = require("../../models/User.js");
+const queryValidation = require("../../utils/InputValidation/query.js");
 
 const getAllUsersController = expressAsyncHandler(async (req, res) => {
-  let { q, limit, page } = req.query;
+  let { q, limit, page } = await queryValidation.validateAsync(req.query);
 
   const searchByName = q ? { name: { $regex: q, $options: "i" } } : {};
   const searchByEmail = q ? { email: { $regex: q, $options: "i" } } : {};

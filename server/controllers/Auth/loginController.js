@@ -31,8 +31,10 @@ const loginController = expressAsyncHandler(async (req, res) => {
     /*
      * @Description: Generate access token and refresh token
      */
-    let accessToken = await getAccessToken(user);
-    let refreshToken = await getRefreshToken(user);
+    let [accessToken, refreshToken] = await Promise.all([
+      getAccessToken(user),
+      getRefreshToken(user),
+    ]);
 
     /*
      * @Description: Set refresh token in user
